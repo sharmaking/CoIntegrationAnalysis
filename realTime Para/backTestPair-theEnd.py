@@ -142,14 +142,14 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 				logFile.close()
 
 			if S < -_stopLoss:
-				ratioA = (tradePoints[-1][3] - pa)/tradePoints[-1][3]
-				ratioB = (pb - tradePoints[-1][5])/tradePoints[-1][5]
+				ratioA = (pa - tradePoints[-1][3])/tradePoints[-1][3]
+				ratioB = (tradePoints[-1][5] - pb)/tradePoints[-1][5]
 				ratioB = beta*ratioB
 				tradePoints.append(("止损:", _time, "Sell:", pa, "Buy:", pb, "收益:", ratioA, ratioB))
 				print tradePoints[-1]
 				opened = False
 
-				logFile = open("tradePoints.csv", "a")
+				logFile = open("tradePointsFinal.csv", "a")
 				content = "%s,StopLoss,OpenTime,%d,CloseTime,%d,Buy:%s,%f,%f,earnings:,%f,Sell:%s,%f,%f,earnings:,%f,all earnings, %f\n" %(
 					pairKey, tradePoints[-2][1], _time,
 					pairKey[:6], tradePoints[-2][3], pa, ratioA,

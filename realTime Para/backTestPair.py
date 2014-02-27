@@ -15,15 +15,15 @@ def loadPairFun():
 	global PairParas, AllStock
 	reader = csv.reader(open("results.csv"))
 	for line in reader:
-		if float(line[8]) < 0.2:
-			PairParas[line[0]] = [
-				float(line[1]),
-				float(line[2]),
-				float(line[3]),
-				float(line[5]),
-				float(line[6]), float(line[7])]
-			AllStock.append(line[0][:6])
-			AllStock.append(line[0][7:15])
+		#if line[0][:6] != "601169" and line[0][7:15] != "601169":
+		PairParas[line[0]] = [
+			float(line[1]), 
+			float(line[2]), 
+			float(line[3]),
+			float(line[5]),	
+			float(line[6]), float(line[7])]
+		AllStock.append(line[0][:6])
+		AllStock.append(line[0][7:15])
 	AllStock = list(set(AllStock))
 #读取bar数据
 def loadBarDataFun():
@@ -32,7 +32,7 @@ def loadBarDataFun():
 	for root, folders, files in list_dirs:
 		for f in files:
 			dataDate = float(f[:8])
-			if dataDate > 20130924 and dataDate < 20131223:
+			if dataDate >= 20131127 and dataDate <= 20140226:
 				path = os.path.join(root, f)
 				reader = csv.reader(open(path))
 				print path

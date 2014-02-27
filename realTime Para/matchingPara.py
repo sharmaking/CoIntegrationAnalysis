@@ -29,6 +29,8 @@ def loadPlateFun():
 		for data in line:
 			if not num:
 				plateName = data
+				if plateName == "rzrq:":
+					break
 				Plate[plateName] = []
 			else:
 				if data:
@@ -58,7 +60,7 @@ def loadBarDataFun():
 	for root, folders, files in list_dirs:
 		for f in files:
 			dataDate = float(f[:8])
-			if dataDate > 20130924 and dataDate < 20131223:
+			if dataDate >= 20131127 and dataDate <= 20140226:
 				path = os.path.join(root, f)
 				reader = csv.reader(open(path))
 				print path
@@ -85,6 +87,7 @@ def stockPairSelectFun():
 							content = "%s,%f,%f,%f,:,%f,%f,%f\n"%(key, bata, MEAN, STD, _open, _close, _stopLoss)
 							logFile.write(content)
 							logFile.close()
+							Results[key] = (bata, MEAN, STD, _open, _close, _stopLoss)
 	pass
 def getPairKeyFun(stock1, stock2, barData1, barData2):
 	if stock1 > stock2:

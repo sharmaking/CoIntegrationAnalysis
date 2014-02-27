@@ -13,7 +13,7 @@ ResultsPairPara = {}
 #读取配对参数
 def loadPairFun():
 	global PairParas, AllStock
-	reader = csv.reader(open("results.csv"))
+	reader = csv.reader(open("filtPara.csv"))
 	for line in reader:
 		#if line[0][:6] != "601169" and line[0][7:15] != "601169":
 		PairParas[line[0]] = [
@@ -32,7 +32,7 @@ def loadBarDataFun():
 	for root, folders, files in list_dirs:
 		for f in files:
 			dataDate = float(f[:8])
-			if dataDate > 20130924 and dataDate < 20131223:
+			if dataDate > 20131223 and dataDate < 20140122:
 				path = os.path.join(root, f)
 				reader = csv.reader(open(path))
 				print path
@@ -81,6 +81,13 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 			if S > _open:
 				tradePoints.append(("开仓:", _time, "Sell:", pa, "buy:", pb))
 				opened = True
+				logFile = open("tradePointsFinal.csv", "a")
+				content = "%s,Open,OpenTime,%d,Sell:%s,%f,Buy:%s,%f\n" %(
+					pairKey, _time,
+					pairKey[:6], pa,
+					pairKey[7:15], pb)
+				logFile.write(content)
+				logFile.close()
 		else:
 			if S < _close:
 				ratioA = (tradePoints[-1][3] - pa)/tradePoints[-1][3]
@@ -90,7 +97,7 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 				print tradePoints[-1]
 				opened = False
 
-				logFile = open("tradePoints.csv", "a")
+				logFile = open("tradePointsFinal.csv", "a")
 				content = "%s,Close,OpenTime,%d,CloseTime,%d,Sell:%s,%f,%f,earnings:,%f,Buy:%s,%f,%f,earnings:,%f,all earnings, %f\n" %(
 					pairKey, tradePoints[-2][1], _time,
 					pairKey[:6], tradePoints[-2][3], pa, ratioA,
@@ -107,7 +114,7 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 				print tradePoints[-1]
 				opened = False
 
-				logFile = open("tradePoints.csv", "a")
+				logFile = open("tradePointsFinal.csv", "a")
 				content = "%s,StopLoss,OpenTime,%d,CloseTime,%d,Sell:%s,%f,%f,earnings:,%f,Buy:%s,%f,%f,earnings:,%f,all earnings, %f\n" %(
 					pairKey, tradePoints[-2][1], _time,
 					pairKey[:6], tradePoints[-2][3], pa, ratioA,
@@ -121,8 +128,15 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 	for _time, pa, pb, st, S in series:
 		if not opened:	#还没开仓
 			if S < -_open:
-				tradePoints.append(("开仓:", _time, "Buy:", pa, "Sell:", pb))
+				tradePoints.append(("开仓:", _time, "Sell:", pa, "Buy:", pb))
 				opened = True
+				logFile = open("tradePointsFinal.csv", "a")
+				content = "%s,Open,OpenTime,%d,Sell:%s,%f,Buy:%s,%f\n" %(
+					pairKey, _time,
+					pairKey[:6], pa,
+					pairKey[7:15], pb)
+				logFile.write(content)
+				logFile.close()
 		else:
 			if S > -_close:
 				ratioA = (pa - tradePoints[-1][3])/tradePoints[-1][3]
@@ -132,7 +146,7 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 				print tradePoints[-1]
 				opened = False
 
-				logFile = open("tradePoints.csv", "a")
+				logFile = open("tradePointsFinal.csv", "a")
 				content = "%s,Close,OpenTime,%d,CloseTime,%d,Buy:%s,%f,%f,earnings:,%f,Sell:%s,%f,%f,earnings:,%f,all earnings, %f\n" %(
 					pairKey, tradePoints[-2][1], _time,
 					pairKey[:6], tradePoints[-2][3], pa, ratioA,
@@ -142,14 +156,14 @@ def getTradePointFun(pairKey, series, beta, _open, _close, _stopLoss):
 				logFile.close()
 
 			if S < -_stopLoss:
-				ratioA = (tradePoints[-1][3] - pa)/tradePoints[-1][3]
-				ratioB = (pb - tradePoints[-1][5])/tradePoints[-1][5]
+				ratioA = (pa - tradePoints[-1][3])/tradePoints[-1][3]
+				ratioB = (tradePoints[-1][5] - pb)/tradePoints[-1][5]
 				ratioB = beta*ratioB
 				tradePoints.append(("止损:", _time, "Sell:", pa, "Buy:", pb, "收益:", ratioA, ratioB))
 				print tradePoints[-1]
 				opened = False
 
-				logFile = open("tradePoints.csv", "a")
+				logFile = open("tradePointsFinal.csv", "a")
 				content = "%s,StopLoss,OpenTime,%d,CloseTime,%d,Buy:%s,%f,%f,earnings:,%f,Sell:%s,%f,%f,earnings:,%f,all earnings, %f\n" %(
 					pairKey, tradePoints[-2][1], _time,
 					pairKey[:6], tradePoints[-2][3], pa, ratioA,
@@ -166,6 +180,7 @@ def main():
 	#读取配对股票参数
 	loadPairFun()
 	print len(AllStock)
+	print AllStock
 	#读取bar数据
 	loadBarDataFun()
 	#回测配对股票

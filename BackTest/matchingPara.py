@@ -29,6 +29,8 @@ def loadPlateFun():
 		for data in line:
 			if not num:
 				plateName = data
+				if plateName == "rzrq:":
+					break
 				Plate[plateName] = []
 			else:
 				if data:
@@ -78,13 +80,14 @@ def stockPairSelectFun():
 				key, series = getPairKeyFun(stock1, stock2, barData1, barData2)
 				if stock1 != stock2 and not Results.has_key(key):
 					if stock1 in StockPrice and stock2 in StockPrice:
-						bata, MEAN, STD, _open, _close, _stopLoss = fittingSeriesFun(series)
-						print key, bata, MEAN, STD
-						if bata < 1.3 and bata > 0.7 and STD < 0.03:
+						beta, beta_std, MEAN, STD, _open, _close, _stopLoss = fittingSeriesFun(series)
+						print key, beta, MEAN, STD, beta_std
+						if beta < 1.3 and beta > 0.7 and STD < 0.03:
 							logFile = open("results.csv", "a")
-							content = "%s,%f,%f,%f,:,%f,%f,%f\n"%(key, bata, MEAN, STD, _open, _close, _stopLoss)
+							content = "%s,%f,%f,%f,:,%f,%f,%f,%f\n"%(key, beta, MEAN, STD, _open, _close, _stopLoss, beta_std)
 							logFile.write(content)
 							logFile.close()
+							Results[key] = (beta, MEAN, STD, _open, _close, _stopLoss, beta_std)
 	pass
 def getPairKeyFun(stock1, stock2, barData1, barData2):
 	if stock1 > stock2:
@@ -104,30 +107,64 @@ def formatSeriesFun(barData1, barData2):
 			resulteSeries.append((barData1[dateKey], barData2[dateKey]))
 	return resulteSeries
 def fittingSeriesFun(series):
+	plsqNum = 4
+	plsqLen = len(series)/4
+
+	BETA = []
+	STD = []
+
+	for i in xrange(plsqNum):
+		if plsqNum - i == 1:
+			x, y = zip(*series[i*plsqLen:])
+		else:
+			x, y = zip(*series[i*plsqLen:(i+1)*plsqLen])
+
+		x = np.log(x)
+		y = np.log(y)
+		p0 = [1.6,0] # 第一次猜测的函数拟合参数
+		plsq = leastsq(residuals, p0, args=(y, x))
+
+		bata = plsq[0][0]
+
+		St = []
+		for data in series:
+			s = np.log(data[0]) - bata*np.log(data[1])
+			St.append(s)
+
+		mean = np.mean(St)
+		std = np.std(St)
+
+		BETA.append(bata)
+		STD.append(std)
+
+	BETA_mean = np.mean(BETA)
+	BETA_std = np.std(BETA)
+	
+	STD_mean = np.mean(STD)
+	STD_std = np.std(STD)
+
 	x, y = zip(*series)
 	x = np.log(x)
 	y = np.log(y)
-	p0 = [1.6,0] # 第一次猜测的函数拟合参数
-	plsq = leastsq(residuals, p0, args=(y, x))
-
-	bata = plsq[0][0]
+	beta = BETA_mean
 
 	St = []
 	for data in series:
-		s = np.log(data[0]) - bata*np.log(data[1])
+		s = np.log(data[0]) - beta*np.log(data[1])
 		St.append(s)
 
-	MEAN = np.mean(St)
-	STD = np.std(St)
+	mean = np.mean(St)
+	std = np.std(St)
+
 
 	test = []
 	for data in St:
-		s = (data - MEAN)/STD
+		s = (data - mean)/std
 		test.append(s)
 
 	test = np.abs(test)
 	test.sort()
-	return plsq[0][0], MEAN, STD, test[len(test)*0.90], test[len(test)*0.04], 2*test[-1]-test[len(test)*0.99]
+	return beta, BETA_std, mean, std, test[len(test)*0.90], test[len(test)*0.04], 2*test[-1]-test[len(test)*0.99]
 def func(x, p):
 	beta, A = p
 	a = []

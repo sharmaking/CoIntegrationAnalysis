@@ -54,7 +54,7 @@ def main():
 	pairs = []
 	for x in result[-10:]:
 		pairs.append(x[0])
-
+		
 	loadPairFun(pairs)
 
 
