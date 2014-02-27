@@ -57,6 +57,5 @@ def main():
 		
 	loadPairFun(pairs)
 
-
 if __name__ == '__main__':
 	main()

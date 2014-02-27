@@ -15,7 +15,7 @@ def loadPairFun():
 	global PairParas, AllStock
 	reader = csv.reader(open("results.csv"))
 	for line in reader:
-		if float(line[8]) < 0.2:
+		if float(line[8]) < 0.01:
 			PairParas[line[0]] = [
 				float(line[1]),
 				float(line[2]),

@@ -166,7 +166,8 @@ def main():
 	#读取配对股票参数
 	loadPairFun()
 	print len(AllStock)
-	print AllStock
+	for stock in AllStock:
+		print stock
 	#读取bar数据
 	loadBarDataFun()
 	#回测配对股票
