@@ -47,19 +47,33 @@ class MLPDynamicMplCanvas(MyMplCanvas):
 	def update_figure(self, datas, para):
 		data = zip(*datas)
 		self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
-		#self.setXYlim(data)
+		self.setXYlim(data, para)
 		self.draw()
 
-	def setXYlim(self, data):
+	def setXYlim(self, data, para):
 		#self.axes.axis(ymin=-2.7, ymax=2.7)
-		self.axes.axhline(y = 1.6, linestyle = "--", linewidth = 0.5, color = "red")
-		self.axes.axhline(y = 0.06, linestyle = "--", linewidth = 0.5, color = "green")
+		#self.axes.axhline(y = 1.6, linestyle = "--", linewidth = 0.5, color = "red")
+		#self.axes.axhline(y = 0.06, linestyle = "--", linewidth = 0.5, color = "green")
 		for label in self.axes.get_xaxis().get_ticklabels():
-			label.set_rotation(20)
+		#	label.set_rotation(20)
 			label.set_fontsize(9)
+		#self.axes.set_xlabel('time (s)', fontdict=self.font)
+		#self.axes.set_ylabel('voltage (mV)', fontdict=self.font)
+		if data[1][-1] > 0: 	#正
+			if data[1][-1] > para["open"]*0.75:
+				self.axes.axhline(y = para["open"], linestyle = "--", linewidth = 0.5, color = "gray")
+			if data[1][-1] > para["stop"]*0.85:
+				self.axes.axhline(y = para["stop"], linestyle = "--", linewidth = 0.5, color = "red")
+			if data[1][-1] < para["close"]*1.15:
+				self.axes.axhline(y = para["close"], linestyle = "--", linewidth = 0.5, color = "green")
+		else: 					#反
+			if data[1][-1] < -para["open"]*0.75:
+				self.axes.axhline(y = -para["open"], linestyle = "--", linewidth = 0.5, color = "gray")
+			if data[1][-1] < -para["stop"]*0.85:
+				self.axes.axhline(y = -para["stop"], linestyle = "--", linewidth = 0.5, color = "red")
+			if data[1][-1] > -para["close"]*1.15:
+				self.axes.axhline(y = -para["close"], linestyle = "--", linewidth = 0.5, color = "green")
 
-		self.axes.set_xlabel('time (s)', fontdict=self.font)
-		self.axes.set_ylabel('voltage (mV)', fontdict=self.font)
 
 		thisDate = copy.copy(data[0][-1])
 		if data[0][-1].time() <= datetime.time(11,30,0):
