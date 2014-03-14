@@ -37,20 +37,18 @@ class MLPDynamicMplCanvas(MyMplCanvas):
 	def __init__(self, QMain):
 		super(MLPDynamicMplCanvas,self).__init__()
 		self.QMain = QMain
-		timer = QtCore.QTimer(self)
-		QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
-		timer.start(1000)
-		
+		#timer = QtCore.QTimer(self)
+		#QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
+		#timer.start(1000)
+
 	def compute_initial_figure(self):
 		pass
 
-	def update_figure(self):
-		pass
-		#data = zip(*self.QMain.standardPriceDeviation[0])
-		#self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
+	def update_figure(self, datas, para):
+		data = zip(*datas)
+		self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
 		#self.setXYlim(data)
-
-		#self.draw()
+		self.draw()
 
 	def setXYlim(self, data):
 		#self.axes.axis(ymin=-2.7, ymax=2.7)

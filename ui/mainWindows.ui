@@ -24,6 +24,36 @@
     <item>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>总配对数:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="pairNumLabel">
+        <property name="text">
+         <string>10</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Maximum</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
        <widget class="QLabel" name="label_4">
         <property name="text">
          <string>当前持仓:</string>
@@ -101,7 +131,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -200,16 +230,16 @@
          <number>5</number>
         </property>
         <item>
-         <widget class="QListWidget" name="listWidget">
+         <widget class="QListWidget" name="pairlistWidget">
           <property name="minimumSize">
            <size>
-            <width>150</width>
+            <width>120</width>
             <height>0</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>150</width>
+            <width>120</width>
             <height>16777215</height>
            </size>
           </property>
@@ -217,17 +247,23 @@
         </item>
         <item>
          <layout class="QVBoxLayout" name="verticalLayout">
+          <property name="spacing">
+           <number>6</number>
+          </property>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2">
+            <property name="spacing">
+             <number>6</number>
+            </property>
             <item>
-             <widget class="QLabel" name="label_3">
+             <widget class="QLabel" name="stockALabel">
               <property name="text">
                <string>股票_A_Price:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_6">
+             <widget class="QLabel" name="stockAPriceLabel">
               <property name="text">
                <string>19.00</string>
               </property>
@@ -235,6 +271,36 @@
             </item>
             <item>
              <spacer name="horizontalSpacer_2">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>10</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="stockBLabel">
+              <property name="text">
+               <string>股票_B_Price:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="stockBPriceLabel">
+              <property name="text">
+               <string>20.00</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_7">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -252,14 +318,14 @@
             <item>
              <widget class="QLabel" name="label_2">
               <property name="text">
-               <string>股票_B_Price:</string>
+               <string>配对值:</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QLabel" name="label_7">
+             <widget class="QLabel" name="valueLabel">
               <property name="text">
-               <string>20.00</string>
+               <string>0</string>
               </property>
              </widget>
             </item>
@@ -275,6 +341,80 @@
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_11">
+              <property name="text">
+               <string>Open:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="openLabel">
+              <property name="text">
+               <string>1.02</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>10</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_13">
+              <property name="text">
+               <string>Close:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="closeLabel">
+              <property name="text">
+               <string>0.01</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>10</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_15">
+              <property name="text">
+               <string>Stop:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="stopLabel">
+              <property name="text">
+               <string>3.5</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>

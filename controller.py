@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #controller.py
-import copy, datetime
+import copy, datetime, csv
 import dataListener, strategyActuator
 from DataApi_32 import CDataProcess
 #载入策略
@@ -46,6 +46,8 @@ def loadSubStocks():
 		if not line:
 			break
 		g_subStocks.append(line)
+	g_subStocks = list(set(g_subStocks))
+	print len(g_subStocks)
 #创建策略对象
 def creatStrategyObject(needSignal, stock):
 	strategyObjDict = {}
@@ -103,10 +105,21 @@ def creatActuators(stocks, bufferStack, isLast):
 			g_StrategyActuatorDict["Multiple"]	= newActuator
 			actuatorDict["Multiple"] 			= newActuator
 	return actuatorDict
+#载入配对股票
+def loadPairStock():
+	global g_subStocks
+	reader = csv.reader(open("filtPara.csv"))
+	for line in reader:
+		if line:
+			g_subStocks.append(line[0][:6])
+			g_subStocks.append(line[0][7:15])
+	g_subStocks = list(set(g_subStocks))
 #主入口
 def main(messageBox):
 	global g_messageBox
 	g_messageBox = messageBox
+	#载入配对股票
+	loadPairStock()
 	#注册策略
 	#载入订阅股票代码
 	loadSubStocks()
