@@ -58,16 +58,36 @@
        </widget>
       </item>
       <item>
-       <widget class="QLCDNumber" name="lcdNumber">
+       <widget class="QLCDNumber" name="marketTime_LCD">
         <property name="minimumSize">
          <size>
-          <width>200</width>
+          <width>280</width>
           <height>40</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>200</width>
+          <width>180</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="numDigits">
+         <number>14</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_10">
+        <property name="text">
+         <string>本地时间:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLCDNumber" name="localTime_LCD">
+        <property name="minimumSize">
+         <size>
+          <width>160</width>
           <height>40</height>
          </size>
         </property>

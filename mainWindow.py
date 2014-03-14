@@ -9,8 +9,6 @@ class QMainWindow(QtGui.QMainWindow):
 	def __init__(self):
 		super(QMainWindow,self).__init__()
 		self.initUI()
-		self.linkObjDict = {}
-		self.standardPriceDeviation = [[],[]]
 	#初始化窗口布局
 	def initUI(self):
 		uic.loadUi('ui/mainWindows.ui', self)
@@ -22,14 +20,10 @@ class QMainWindow(QtGui.QMainWindow):
 		#设置表格
 		self.messageTableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.Stretch)
 		self.messageTableWidget.resizeColumnsToContents()
-
-def main():
-	app = QtGui.QApplication(sys.argv)
-	QMain = QMainWindow()
-	#显示主窗口
-	QMain.show()
-	sys.exit(app.exec_())
-	pass
-
-if __name__ == '__main__':
-	main()
+	#控制方法
+	#显示行情时间
+	def showMarketTime(self, marketTime):
+		self.marketTime_LCD.display(marketTime)
+	#显示本地时间
+	def showLocalTime(self, localTime):
+		self.localTime_LCD.display(localTime)

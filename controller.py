@@ -20,7 +20,7 @@ g_messageBox = []
 #订阅单策略
 SUB_SIGNALS = ["baseSignal"]
 #订阅多策略
-SUB_MULTIPLES = ["baseMultiple"]
+SUB_MULTIPLES = ["pairTradeMultiple"]
 #-----------------------
 #注册策略
 #-----------------------
@@ -30,6 +30,7 @@ g_SSDict["baseSignal"] = signalStrategy.CBaseSignal
 #多只股票策略对象池
 g_MSDict = {}
 g_MSDict["baseMultiple"] = multipleStrategy.CBaseMultiple
+g_MSDict["pairTradeMultiple"] = multipleStrategy.CPairTradeMultiple
 #-----------------------
 #实现函数
 #-----------------------
