@@ -5,11 +5,10 @@ from PyQt4 import QtCore
 import datetime
 
 class QWindowListerner(QtCore.QThread):
-	def __init__(self, Qmain, messageBox, lock):
+	def __init__(self, Qmain, messageBox):
 		super(QWindowListerner,self).__init__()
 		self.Qmain = Qmain
 		self.messageBox = messageBox
-		self.lock = lock
 
 	def __del__(self):
 		self.wait()
@@ -17,7 +16,6 @@ class QWindowListerner(QtCore.QThread):
 	def run(self):
 		while True:
 			while not self.messageBox.empty():
-				self.lock.lock()
 				systemMessage = self.messageBox.get()
 				if systemMessage[0] == 0:	#初始化参数表
 					self.Qmain.getPairPara(systemMessage[1])
@@ -26,7 +24,6 @@ class QWindowListerner(QtCore.QThread):
 					self.Qmain.showLocalTime(str(datetime.datetime.now().time())[:8])
 				elif systemMessage[0] == 2:	#配对股票策略值的情况
 					self.Qmain.getPairValue(systemMessage[1])
-				self.lock.unlock()
 			pass
 		pass
  		self.terminate()

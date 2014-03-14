@@ -6,9 +6,8 @@ import mlpCanvas
 import datetime, sys, time
 
 class QMainWindow(QtGui.QMainWindow):
-	def __init__(self, lock):
+	def __init__(self):
 		super(QMainWindow,self).__init__()
-		self.lock = lock
 		self.initUI()
 		self.initEventConnection()
 		self.curPairKey = ""
@@ -67,10 +66,8 @@ class QMainWindow(QtGui.QMainWindow):
 	#------------------------------
 	#显示选定配对参数
 	def showSelectPairDetail(self, pairItem):
-		self.lock.lock()
 		pairKey = pairItem.text()
 		self.setCurrentPair(pairKey)
-		self.lock.unlock()
 	def setCurrentPair(self, pairKey):
 		self.curPairKey = pairKey
 		#显示参数
