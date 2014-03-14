@@ -57,10 +57,6 @@ class QMainWindow(QtGui.QMainWindow):
 			self.stockAPriceLabel.setText(str(pa))
 			self.stockBPriceLabel.setText(str(pb))
 			self.valueLabel.setText(str(value))
-			self.updateCanvas()
-	def updateCanvas(self):
-		self.dc.update_figure(self.pairTradeStatus[str(self.curPairKey)]["datas"], self.pairPara[str(self.curPairKey)])
-		pass
 	#------------------------------
 	#界面操控方法
 	#------------------------------

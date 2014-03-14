@@ -37,28 +37,25 @@ class MLPDynamicMplCanvas(MyMplCanvas):
 	def __init__(self, QMain):
 		super(MLPDynamicMplCanvas,self).__init__()
 		self.QMain = QMain
-		#timer = QtCore.QTimer(self)
-		#QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
-		#timer.start(1000)
+		timer = QtCore.QTimer(self)
+		QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
+		timer.start(1000)
 
 	def compute_initial_figure(self):
 		pass
 
-	def update_figure(self, datas, para):
-		data = zip(*datas)
-		self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
-		self.setXYlim(data, para)
-		self.draw()
+	def update_figure(self):
+		datas, para = self.QMain.pairTradeStatus[str(self.QMain.curPairKey)]["datas"], self.QMain.pairPara[str(self.QMain.curPairKey)]
+		if datas and para:
+			data = zip(*datas)
+			self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
+			self.setXYlim(data, para)
+			self.draw()
 
 	def setXYlim(self, data, para):
-		#self.axes.axis(ymin=-2.7, ymax=2.7)
-		#self.axes.axhline(y = 1.6, linestyle = "--", linewidth = 0.5, color = "red")
-		#self.axes.axhline(y = 0.06, linestyle = "--", linewidth = 0.5, color = "green")
 		for label in self.axes.get_xaxis().get_ticklabels():
-		#	label.set_rotation(20)
 			label.set_fontsize(9)
-		#self.axes.set_xlabel('time (s)', fontdict=self.font)
-		#self.axes.set_ylabel('voltage (mV)', fontdict=self.font)
+
 		if data[1][-1] > 0: 	#正
 			if data[1][-1] > para["open"]*0.75:
 				self.axes.axhline(y = para["open"], linestyle = "--", linewidth = 0.5, color = "gray")
@@ -73,7 +70,6 @@ class MLPDynamicMplCanvas(MyMplCanvas):
 				self.axes.axhline(y = -para["stop"], linestyle = "--", linewidth = 0.5, color = "red")
 			if data[1][-1] > -para["close"]*1.15:
 				self.axes.axhline(y = -para["close"], linestyle = "--", linewidth = 0.5, color = "green")
-
 
 		thisDate = copy.copy(data[0][-1])
 		if data[0][-1].time() <= datetime.time(11,30,0):
