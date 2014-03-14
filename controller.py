@@ -97,7 +97,7 @@ def creatActuators(stocks, bufferStack, isLast):
 			actuatorDict["Multiple"] 			= newActuator
 	return actuatorDict
 #主入口
-def main():
+def main(QMain):
 	#注册策略
 	#载入订阅股票代码
 	loadSubStocks()

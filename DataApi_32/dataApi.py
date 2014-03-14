@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import socket, datetime, time
+import socket, datetime, time, thread
 import socketFun
 
 class CDataApi(socket.socket):
@@ -29,7 +29,7 @@ class CDataApi(socket.socket):
 			print "Request illegal Param"
 	#启动执行
 	def run(self):
-		socketFun.recvSubscibeRespond(self, 1)
+		thread.start_new_thread(socketFun.recvSubscibeRespond,(self, 1))
 	#----------------------------
 	#需重载函数
 	#----------------------------
