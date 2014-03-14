@@ -22,8 +22,6 @@ class CBaseSignal(baseStrategy.CBaseStrategy):
 	#买一队列触发函数
 	def onRtnOrderQueue(self, data):
 		pass #print self.name, "onRtnOrderQueue", self.stockCode, len(data)
-	def dayBegin(self):
-		pass
 	def dayEnd(self):
 		pass
 	#自动保存缓存触发函数

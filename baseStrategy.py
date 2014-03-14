@@ -1,13 +1,12 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import datetime
-import copy
-import os
+import datetime, copy, os
 
 class CBaseStrategy(object):
-	def __init__(self, stockCode):
+	def __init__(self, stockCode, messageBox):
 		super(CBaseStrategy, self).__init__()
 		self.stockCode = stockCode
+		self.messageBox = messageBox
 		self.customInit()
 		self.initCashe()
 		#最新数据
@@ -43,6 +42,11 @@ class CBaseStrategy(object):
 		if (datetime.datetime.now() - self.preSaveCacheTime)> datetime.timedelta(minutes = 1):
 			self.autosaveCache()
 			#self.saveCacheAdd(MDList = self.MDList, TDList = self.TDList, ODList = self.ODList)
+	#------------------------------
+	#信号相关 相关函数
+	#------------------------------
+	def sendMessage(self, messageObj):
+		self.messageBox.put(messageObj)
 	#------------------------------
 	#cache 相关函数
 	#------------------------------

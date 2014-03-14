@@ -16,8 +16,7 @@ class CBaseMultiple(baseStrategy.CBaseStrategy):
 		self.name = "baseMultiple"
 	#行情数据触发函数
 	def onRtnMarketData(self, data):
-		print self.name, "onRtnMarketData", len(data)
-	def dayBegin(self):
+		#self.sendMessage((self.name, "onRtnMarketData", data["dateTime"]))
 		pass
 	def dayEnd(self):
 		pass

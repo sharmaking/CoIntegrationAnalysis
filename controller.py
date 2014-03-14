@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 #controller.py
-import copy, datetime, multiprocessing
+import copy, datetime
 import dataListener, strategyActuator
 from DataApi_32 import CDataProcess
 #载入策略
@@ -15,6 +15,12 @@ g_listenerList = []			#总共3个对象
 g_StrategyActuatorDict = {}	#每个股票一个对象
 #订阅股票列表
 g_subStocks = []
+#信号堆栈
+g_messageBox = []
+#订阅单策略
+SUB_SIGNALS = ["baseSignal"]
+#订阅多策略
+SUB_MULTIPLES = ["baseMultiple"]
 #-----------------------
 #注册策略
 #-----------------------
@@ -46,13 +52,13 @@ def creatStrategyObject(needSignal, stock):
 		if not SUB_SIGNALS:		#如果没有订阅
 			return False
 		for signalName in SUB_SIGNALS:
-			strategyObjDict[signalName] = g_SSDict[signalName](stock)
+			strategyObjDict[signalName] = g_SSDict[signalName](stock, g_messageBox)
 		return strategyObjDict
 	else:			#多信号策略
 		if not SUB_MULTIPLES:	#如果没有订阅
 			return False
 		for multipeName in SUB_MULTIPLES:
-			strategyObjDict[multipeName] = g_MSDict[multipeName]("Multiple")
+			strategyObjDict[multipeName] = g_MSDict[multipeName]("Multiple", g_messageBox)
 			strategyObjDict[multipeName].getActuatorDict(g_StrategyActuatorDict)
 		return strategyObjDict
 #创建监听对象
@@ -97,7 +103,9 @@ def creatActuators(stocks, bufferStack, isLast):
 			actuatorDict["Multiple"] 			= newActuator
 	return actuatorDict
 #主入口
-def main(QMain):
+def main(messageBox):
+	global g_messageBox
+	g_messageBox = messageBox
 	#注册策略
 	#载入订阅股票代码
 	loadSubStocks()
