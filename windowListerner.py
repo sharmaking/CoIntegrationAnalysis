@@ -16,14 +16,16 @@ class QWindowListerner(QtCore.QThread):
 	def run(self):
 		while True:
 			while not self.messageBox.empty():
-				systemMessage = self.messageBox.get()
-				if systemMessage[0] == 0:	#初始化参数表
-					self.Qmain.getPairPara(systemMessage[1])
-				elif systemMessage[0] == 1:	#显示时间
-					self.Qmain.showMarketTime(str(systemMessage[1])[5:19])
+				message = self.messageBox.get()
+				if message[0] == 0:	#初始化参数表
+					self.Qmain.getPairPara(message[1])
+				elif message[0] == 1:	#显示时间
+					self.Qmain.showMarketTime(str(message[1])[5:19])
 					self.Qmain.showLocalTime(str(datetime.datetime.now().time())[:8])
-				elif systemMessage[0] == 2:	#配对股票策略值的情况
-					self.Qmain.getPairValue(systemMessage[1])
+				elif message[0] == 2:	#配对股票策略值的情况
+					self.Qmain.getPairValue(message[1])
+				elif message[0] == 3:	#策略开平仓信号
+					self.Qmain.getTradeMessage(message[1])
 			pass
 		pass
  		self.terminate()

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>848</width>
+    <width>979</width>
     <height>573</height>
    </rect>
   </property>
@@ -131,7 +131,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -155,15 +155,34 @@
           <property name="autoScrollMargin">
            <number>14</number>
           </property>
+          <property name="verticalScrollMode">
+           <enum>QAbstractItemView::ScrollPerItem</enum>
+          </property>
           <property name="horizontalScrollMode">
-           <enum>QAbstractItemView::ScrollPerPixel</enum>
+           <enum>QAbstractItemView::ScrollPerItem</enum>
           </property>
           <attribute name="horizontalHeaderDefaultSectionSize">
            <number>96</number>
           </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>true</bool>
+          </attribute>
           <attribute name="verticalHeaderMinimumSectionSize">
            <number>15</number>
           </attribute>
+          <column>
+           <property name="text">
+            <string>股票对</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>信号类型</string>
+           </property>
+          </column>
           <column>
            <property name="text">
             <string>时间</string>
@@ -171,7 +190,7 @@
           </column>
           <column>
            <property name="text">
-            <string>信号类型</string>
+            <string>比例</string>
            </property>
           </column>
           <column>
@@ -191,7 +210,7 @@
           </column>
           <column>
            <property name="text">
-            <string>比例</string>
+            <string>数量/收益</string>
            </property>
           </column>
           <column>
@@ -211,7 +230,12 @@
           </column>
           <column>
            <property name="text">
-            <string>比例</string>
+            <string>数量/收益</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>盈利</string>
            </property>
           </column>
          </widget>
@@ -496,7 +520,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>848</width>
+     <width>979</width>
      <height>23</height>
     </rect>
    </property>

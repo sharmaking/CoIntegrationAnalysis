@@ -38,19 +38,23 @@ class MLPDynamicMplCanvas(MyMplCanvas):
 		super(MLPDynamicMplCanvas,self).__init__()
 		self.QMain = QMain
 		timer = QtCore.QTimer(self)
+		timer.setInterval(1000)
 		QtCore.QObject.connect(timer, QtCore.SIGNAL("timeout()"), self.update_figure)
-		timer.start(1000)
+		timer.start()
 
 	def compute_initial_figure(self):
 		pass
 
 	def update_figure(self):
-		datas, para = self.QMain.pairTradeStatus[str(self.QMain.curPairKey)]["datas"], self.QMain.pairPara[str(self.QMain.curPairKey)]
-		if datas and para:
-			data = zip(*datas)
-			self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
-			self.setXYlim(data, para)
-			self.draw()
+		try:
+			datas, para = self.QMain.pairTradeStatus[str(self.QMain.curPairKey)]["datas"], self.QMain.pairPara[str(self.QMain.curPairKey)]
+			if datas and para:
+				data = zip(*datas)
+				self.axes.plot_date(pylab.date2num(data[0]), data[1], "-", label='line 1', linewidth=1)
+				self.setXYlim(data, para)
+				self.draw()
+		except Exception:
+			pass
 
 	def setXYlim(self, data, para):
 		for label in self.axes.get_xaxis().get_ticklabels():
@@ -73,7 +77,7 @@ class MLPDynamicMplCanvas(MyMplCanvas):
 
 		thisDate = copy.copy(data[0][-1])
 		if data[0][-1].time() <= datetime.time(11,30,0):
-			self.axes.axis(xmin=pylab.date2num(thisDate.replace(hour=9,minute=30)), xmax=pylab.date2num(thisDate.replace(hour=11,minute=30)))
+			self.axes.axis(xmin=pylab.date2num(thisDate.replace(hour=9,minute=30,second=0)), xmax=pylab.date2num(thisDate.replace(hour=11,minute=30)))
 		else:
-			self.axes.axis(xmin=pylab.date2num(thisDate.replace(hour=13,minute=0)), xmax=pylab.date2num(thisDate.replace(hour=15,minute=0)))
+			self.axes.axis(xmin=pylab.date2num(thisDate.replace(hour=13,minute=0,second=0)), xmax=pylab.date2num(thisDate.replace(hour=15,minute=0)))
 		pass

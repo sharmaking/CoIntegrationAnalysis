@@ -11,6 +11,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 	#自定义初始化函数
 	def customInit(self):
 		self.name = "pairTradeMultiple"
+		self.baseVol	= 200		#基本开仓量 200手
+		self.outputFile = ".\\log\\tradPoint.csv"
 		self.pairDict = {}
 		self.pairTradeStatus = {}
 		self.loadPairPara()
@@ -57,7 +59,7 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 				value = self.getPairValue(pa, pb, pairPara)
 				#发送参数信号
 				self.sendMessage((2, (pairKey, data["dateTime"],pa, pb, value)))
-				self.getTradeMessage(data, value, pairPara, self.pairTradeStatus[pairKey])
+				self.getTradeMessage(pairKey, data, value, pairPara, self.pairTradeStatus[pairKey])
 			pass
 		pass
 	#计算配对策略值
@@ -66,5 +68,161 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 		S = (St - para["mean"])/para["std"]
 		return S
 	#计算开平仓信号
-	def getTradeMessage(self, data, value, para, status):
+	def getTradeMessage(self, pairKey, data, value, para, status):
+		if not status.has_key("tradPoint"):
+			status["tradPoint"] = []
+			status["direction"]	= 0 	# 0 未开仓, 1 正方向, 2 负方向, -1 不要做了
+		if not status["direction"]:
+			if value > para["open"]:	#正方向
+				status["preOpenTime"] = copy.copy(data["dateTime"])
+				status["tradPoint"].append({
+					"type"		: "open",
+					"pairKey"	: pairKey,
+					"stock_A"	: pairKey[:6],
+					"stock_B"	: pairKey[7:15],
+					"beta"		: para["beta"],
+					"dateTime"	: data["dateTime"],
+					"direction"	: 1,
+					"dirc_A"	: "sell",
+					"dirc_B"	: "buy",
+					"pa"		: status["pa"],
+					"pb"		: status["pb"],
+					"vol_a"		: self.baseVol,
+					"vol_b"		: self.baseVol*status["pa"]*para["beta"]/status["pb"]
+					})
+				if para["beta"] < 0:
+					status["tradPoint"][-1]["dirc_B"]	= status["tradPoint"][-1]["dirc_A"]
+				self.sendMessage((3, status["tradPoint"][-1]))
+				status["direction"] = 1
+			if value < -para["open"]:	#负
+				status["preOpenTime"] = copy.copy(data["dateTime"])
+				status["tradPoint"].append({
+					"type"		: "open",
+					"pairKey"	: pairKey,
+					"stock_A"	: pairKey[:6],
+					"stock_B"	: pairKey[7:15],
+					"beta"		: para["beta"],
+					"dateTime"	: data["dateTime"],
+					"direction"	: 1,
+					"dirc_A"	: "buy",
+					"dirc_B"	: "sell",
+					"pa"		: status["pa"],
+					"pb"		: status["pb"],
+					"vol_a"		: self.baseVol,
+					"vol_b"		: self.baseVol*status["pa"]*para["beta"]/status["pb"]
+					})
+				if para["beta"] < 0:
+					status["tradPoint"][-1]["dirc_B"]	= status["tradPoint"][-1]["dirc_A"]
+				self.sendMessage((3, status["tradPoint"][-1]))
+				status["direction"] = 2
+		elif status["direction"] == 1:	#正方向
+			if value < para["close"]:	#平仓
+				ratio_A = (status["tradPoint"][-1]["pa"] - status["pa"])*0.9992/status["tradPoint"][-1]["pa"]
+				ratio_B = (status["pb"] - status["tradPoint"][-1]["pb"])*0.9992/status["tradPoint"][-1]["pb"]
+				ratio 	= (ratio_A+ratio_B*np.abs(para["beta"]))/(1+np.abs(para["beta"]))
+				status["tradPoint"].append({
+					"type"		: "close",
+					"pairKey"	: pairKey,
+					"stock_A"	: pairKey[:6],
+					"stock_B"	: pairKey[7:15],
+					"beta"		: para["beta"],
+					"dateTime"	: data["dateTime"],
+					"direction"	: 1,
+					"dirc_A"	: "buy",
+					"dirc_B"	: "sell",
+					"pa"		: status["pa"],
+					"pb"		: status["pb"],
+					"ratio_A"	: ratio_A,
+					"ratio_B"	: ratio_B,
+					"ratio"		: ratio
+					})
+				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
+				self.sendMessage((3, status["tradPoint"][-1]))
+				status["direction"] = 0
+			if value > para["stop"]:	#止损
+				ratio_A = (status["tradPoint"][-1]["pa"] - status["pa"])*0.9992/status["tradPoint"][-1]["pa"]
+				ratio_B = (status["pb"] - status["tradPoint"][-1]["pb"])*0.9992/status["tradPoint"][-1]["pb"]
+				ratio 	= (ratio_A+ratio_B*np.abs(para["beta"]))/(1+np.abs(para["beta"]))
+				status["tradPoint"].append({
+					"type"		: "stop",
+					"pairKey"	: pairKey,
+					"stock_A"	: pairKey[:6],
+					"stock_B"	: pairKey[7:15],
+					"beta"		: para["beta"],
+					"dateTime"	: data["dateTime"],
+					"direction"	: 1,
+					"dirc_A"	: "buy",
+					"dirc_B"	: "sell",
+					"pa"		: status["pa"],
+					"pb"		: status["pb"],
+					"ratio_A"	: ratio_A,
+					"ratio_B"	: ratio_B,
+					"ratio"		: ratio
+					})
+				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
+				self.sendMessage((3, status["tradPoint"][-1]))
+				status["direction"] = -1
+		elif status["direction"] == 2:	#负方向
+			if value > -para["close"]:	#平仓
+				ratio_A = (status["pa"] - status["tradPoint"][-1]["pa"])*0.9992/status["tradPoint"][-1]["pa"]
+				ratio_B = (status["tradPoint"][-1]["pb"] - status["pb"])*0.9992/status["tradPoint"][-1]["pb"]
+				ratio 	= (ratio_A+ratio_B*np.abs(para["beta"]))/(1+np.abs(para["beta"]))
+				status["tradPoint"].append({
+					"type"		: "close",
+					"pairKey"	: pairKey,
+					"stock_A"	: pairKey[:6],
+					"stock_B"	: pairKey[7:15],
+					"beta"		: para["beta"],
+					"dateTime"	: data["dateTime"],
+					"direction"	: 2,
+					"dirc_A"	: "sell",
+					"dirc_B"	: "buy",
+					"pa"		: status["pa"],
+					"pb"		: status["pb"],
+					"ratio_A"	: ratio_A,
+					"ratio_B"	: ratio_B,
+					"ratio"		: ratio
+					})
+				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
+				self.sendMessage((3, status["tradPoint"][-1]))
+				status["direction"] = 0
+			if value < -para["stop"]:	#止损
+				ratio_A = (status["pa"] - status["tradPoint"][-1]["pa"])*0.9992/status["tradPoint"][-1]["pa"]
+				ratio_B = (status["tradPoint"][-1]["pb"] - status["pb"])*0.9992/status["tradPoint"][-1]["pb"]
+				ratio 	= (ratio_A+ratio_B*np.abs(para["beta"]))/(1+np.abs(para["beta"]))
+				status["tradPoint"].append({
+					"type"		: "stop",
+					"pairKey"	: pairKey,
+					"stock_A"	: pairKey[:6],
+					"stock_B"	: pairKey[7:15],
+					"beta"		: para["beta"],
+					"dateTime"	: data["dateTime"],
+					"direction"	: 2,
+					"dirc_A"	: "sell",
+					"dirc_B"	: "buy",
+					"pa"		: status["pa"],
+					"pb"		: status["pb"],
+					"ratio_A"	: ratio_A,
+					"ratio_B"	: ratio_B,
+					"ratio"		: ratio
+					})
+				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
+				self.sendMessage((3, status["tradPoint"][-1]))
+				status["direction"] = -1
+		pass
+
+	def creatTradingLog(self, closeTrade, openTrade):
+		if closeTrade["beta"] < 0:
+			openTrade["dirc_B"]	= openTrade["dirc_A"]
+			closeTrade["dirc_B"] = closeTrade["dirc_A"]
+			closeTrade["ratio_B"] = -1*closeTrade["ratio_B"]
+			closeTrade["ratio"]	= (closeTrade["ratio_A"] + closeTrade["ratio_B"]*np.abs(closeTrade["beta"]))/(1+np.abs(closeTrade["beta"]))
+		outputFile = open(self.outputFile, "a")
+		content = "%s,%s,openTime,%s,closeTime,%s,%s,%s,%s,%s,ratio_A,%s,%s,%s,%s,%s,ratio_B,%s,all_ratio,%s\n"%(
+			closeTrade["pairKey"], closeTrade["type"], str(openTrade["dateTime"]), str(closeTrade["dateTime"]),
+			closeTrade["stock_A"], openTrade["dirc_A"], openTrade["pa"], closeTrade["pa"],closeTrade["ratio_A"],
+			closeTrade["stock_B"], openTrade["dirc_B"], openTrade["pb"], closeTrade["pb"],closeTrade["ratio_B"],
+			closeTrade["ratio"])
+		outputFile.write(content)
+		outputFile.close()
 		pass
