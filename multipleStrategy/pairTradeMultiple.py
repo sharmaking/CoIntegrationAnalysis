@@ -24,7 +24,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 		pass
 	#自动保存缓存触发函数
 	def autosaveCache(self):
-		#self.saveCache(data = self.data)
+		self.saveCache(pairDict = self.pairDict,
+			pairTradeStatus = self.pairTradeStatus)
 		pass
 	#------------------------------
 	#执行策略方法

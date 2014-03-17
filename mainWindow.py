@@ -115,12 +115,16 @@ class QMainWindow(QtGui.QMainWindow):
 		#stock_a_direction
 		if tradeMessage["dirc_A"] == "buy":
 			itemRow[5].setForeground(QtGui.QColor("red"))
+			itemRow[6].setForeground(QtGui.QColor("red"))
 		else:
 			itemRow[5].setForeground(QtGui.QColor("green"))
+			itemRow[6].setForeground(QtGui.QColor("green"))
 		#stock_b_direction
 		if tradeMessage["dirc_B"] == "buy":
+			itemRow[9].setForeground(QtGui.QColor("red"))
 			itemRow[10].setForeground(QtGui.QColor("red"))
 		else:
+			itemRow[9].setForeground(QtGui.QColor("green"))
 			itemRow[10].setForeground(QtGui.QColor("green"))
 		return itemRow
 	#------------------------------
