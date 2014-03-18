@@ -104,10 +104,14 @@ class QMainWindow(QtGui.QMainWindow):
 		self.setCurrentPair(self.pairPara.items()[0][0])
 	#获得配对参数
 	def getPairValue(self, pairValue):
-		pairKey, valuetime, pa, pb, value = pairValue
+		pairKey, valuetime, pa, pb, value, volList_A, volList_B = pairValue
 		self.pairTradeStatus[pairKey]["pa"] = pa
 		self.pairTradeStatus[pairKey]["pb"] = pb
 		self.pairTradeStatus[pairKey]["datas"].append((valuetime, value))
+		self.pairTradeStatus[pairKey]["volList_A"] = volList_A
+		self.pairTradeStatus[pairKey]["volList_B"] = volList_B
+		if len(self.pairTradeStatus[pairKey]["datas"]) > 6000:
+			del self.pairTradeStatus[pairKey]["datas"][0]
 		#显示参数
 		if pairKey == self.curPairKey:
 			self.stockAPriceLabel.setText(str(pa))
@@ -156,6 +160,8 @@ class QMainWindow(QtGui.QMainWindow):
 		self.pairTradeStatus[tradeMessage["pairKey"]]["tradPoint"].append(tradeMessage)
 		if tradeMessage["type"] == "open":
 			itemRow = self.formartTradeMessage(tradeMessage, "open")
+			if self.positionsPair.has_key(tradeMessage["pairKey"]) and self.positionsPair[tradeMessage["pairKey"]]:
+				itemRow[0].setText("Check")
 			for i in xrange(len(itemRow)):
 				self.messageTableWidget.setItem(self.messageTableWidget.rowCount()-1,i,itemRow[i])
 		elif tradeMessage["type"] == "close":

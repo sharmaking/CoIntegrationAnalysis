@@ -46,23 +46,33 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"stop"	: float(line[6])}
 				self.pairTradeStatus[line[0]] = {}
 		self.sendMessage((0, self.pairDict))
-	#活动股票价格
+	#获得股票价格
 	def getStockCurPrice(self, stockCode):
 		if self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList:
 			return copy.copy(self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList[-1]["close"])
+		return None
+	#获得股票行数数据
+	def getStockOfferStatus(self, stockCode):
+		if self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList:
+			ask = zip(*(copy.copy(self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList[-1]["askPrice"]),
+				copy.copy(self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList[-1]["askVol"])))[:5]
+			bid = zip(*(copy.copy(self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList[-1]["bidPrice"]),
+				copy.copy(self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList[-1]["bidVol"])))[:5]
+			volList = ask + bid
+			volList = sorted(volList, key=lambda d:d[0], reverse=True)
+			return volList
 		return None
 	#策略主入口
 	def strategyEntrance(self, data):
 		for pairKey, pairPara in self.pairDict.items():
 			pa, pb = self.getStockCurPrice(pairPara["stock_A"]), self.getStockCurPrice(pairPara["stock_B"])
 			if pa and pb:
+				volList_A, volList_B = self.getStockOfferStatus(pairPara["stock_A"]), self.getStockOfferStatus(pairPara["stock_B"])
 				self.pairTradeStatus[pairKey]["pa"], self.pairTradeStatus[pairKey]["pb"] = pa, pb
 				value = self.getPairValue(pa, pb, pairPara)
 				#发送参数信号
-				self.sendMessage((2, (pairKey, data["dateTime"],pa, pb, value)))
+				self.sendMessage((2, (pairKey, data["dateTime"],pa, pb, value, volList_A, volList_B)))
 				self.getTradeMessage(pairKey, data, value, pairPara, self.pairTradeStatus[pairKey])
-			pass
-		pass
 	#计算配对策略值
 	def getPairValue(self, pa, pb, para):
 		St = np.log(pa) - para["beta"]*np.log(pb)
