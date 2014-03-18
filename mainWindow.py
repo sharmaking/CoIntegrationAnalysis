@@ -122,10 +122,14 @@ class QMainWindow(QtGui.QMainWindow):
 				self.messageTableWidget.setItem(self.messageTableWidget.rowCount()-1,i,itemRow[i])
 		elif tradeMessage["type"] == "close":
 			itemRow = self.formartTradeMessage(tradeMessage, "close")
+			if not(self.positionsPair.has_key(tradeMessage["pairKey"]) and self.positionsPair[tradeMessage["pairKey"]]):
+				itemRow[0].setText("X")
 			for i in xrange(len(itemRow)):
 				self.messageTableWidget.setItem(self.messageTableWidget.rowCount()-1,i,itemRow[i])
 		elif tradeMessage["type"] == "stop":
 			itemRow = self.formartTradeMessage(tradeMessage, "stop")
+			if not(self.positionsPair.has_key(tradeMessage["pairKey"]) and self.positionsPair[tradeMessage["pairKey"]]):
+				itemRow[0].setText("X")
 			for i in xrange(len(itemRow)):
 				self.messageTableWidget.setItem(self.messageTableWidget.rowCount()-1,i,itemRow[i])
 		pass
@@ -177,6 +181,7 @@ class QMainWindow(QtGui.QMainWindow):
 		else:
 			itemRow[9].setForeground(QtGui.QColor("green"))
 			itemRow[10].setForeground(QtGui.QColor("green"))
+		itemRow.insert(0, QtGui.QTableWidgetItem(""))
 		return itemRow
 	#------------------------------
 	#界面操控方法
@@ -197,12 +202,13 @@ class QMainWindow(QtGui.QMainWindow):
 		pass
 	#显示对话框
 	def makeADeal(self, row, column):
-		pairKey = self.messageTableWidget.item(row, 0).text()
-		tradeType = self.messageTableWidget.item(row, 1).text()
+		pairKey = self.messageTableWidget.item(row, 1).text()
+		tradeType = self.messageTableWidget.item(row, 2).text()
 		dialog = tradeDialogWindow.QTradeDialogWindow(self, str(pairKey), self.pairPara[str(pairKey)], self.pairTradeStatus[str(pairKey)]["tradPoint"][-1])
 		if dialog.exec_():
 			tradePoint = dialog.getTrueTradePoint()
 			self.recordTrueTradePoint(str(pairKey), tradeType, tradePoint)
+			self.messageTableWidget.item(row, 0).setText("Check")
 		dialog.destroy()
 	#记录真实交易记录
 	def recordTrueTradePoint(self, pairKey, tradeType, tradePoint):
@@ -239,7 +245,7 @@ class QMainWindow(QtGui.QMainWindow):
 		else:
 			self.positionsPair[pairKey] = []
 			item = self.positionsPairTableWidget.findItems(QtCore.QString(pairKey), QtCore.Qt.MatchFlags(0))
-			row = self.positionsPairTableWidget.row(item)
+			row = self.positionsPairTableWidget.row(item[0])
 			self.positionsPairTableWidget.removeRow(row)
 			self.positionslabel.setText(str(int(self.positionslabel.text())-1))
 	#格式化真实交易点
@@ -260,36 +266,19 @@ class QMainWindow(QtGui.QMainWindow):
 			QtGui.QTableWidgetItem(str(tradeMessage["pb"])),
 			QtGui.QTableWidgetItem(str(tradeMessage["vol_b"]))
 			]
-		#if tradeType == "open":
-		#	itemRow.insert(7, QtGui.QTableWidgetItem(str(tradeMessage["vol_a"])))
-		#	itemRow.insert(11, QtGui.QTableWidgetItem(str(tradeMessage["vol_b"])))
-		#	#for item in itemRow:
-		#	#	item.setBackground(QtGui.QColor(233,248,254,100))
-		#elif tradeType == "close":
-		#	itemRow.insert(7, QtGui.QTableWidgetItem(str(tradeMessage["ratio_A"])))
-		#	itemRow.insert(11, QtGui.QTableWidgetItem(str(tradeMessage["ratio_B"])))
-		#	itemRow.insert(12, QtGui.QTableWidgetItem(str(tradeMessage["ratio"])))
-		#	for item in itemRow:
-		#		item.setBackground(QtGui.QColor(252,221,222,100))
-		#elif tradeType == "stop":
-		#	itemRow.insert(7, QtGui.QTableWidgetItem(str(tradeMessage["ratio_A"])))
-		#	itemRow.insert(11, QtGui.QTableWidgetItem(str(tradeMessage["ratio_B"])))
-		#	itemRow.insert(12, QtGui.QTableWidgetItem(str(tradeMessage["ratio"])))
-		#	for item in itemRow:
-		#		item.setBackground(QtGui.QColor(226,244,235,100))
-		##stock_a_direction
-		#if tradeMessage["dirc_A"] == "buy":
-		#	itemRow[5].setForeground(QtGui.QColor("red"))
-		#	itemRow[6].setForeground(QtGui.QColor("red"))
-		#else:
-		#	itemRow[5].setForeground(QtGui.QColor("green"))
-		#	itemRow[6].setForeground(QtGui.QColor("green"))
-		##stock_b_direction
-		#if tradeMessage["dirc_B"] == "buy":
-		#	itemRow[9].setForeground(QtGui.QColor("red"))
-		#	itemRow[10].setForeground(QtGui.QColor("red"))
-		#else:
-		#	itemRow[9].setForeground(QtGui.QColor("green"))
-		#	itemRow[10].setForeground(QtGui.QColor("green"))
+		#stock_a_direction
+		if tradeMessage["dirc_A"] == "buy":
+			itemRow[5].setForeground(QtGui.QColor("red"))
+			itemRow[6].setForeground(QtGui.QColor("red"))
+		else:
+			itemRow[5].setForeground(QtGui.QColor("green"))
+			itemRow[6].setForeground(QtGui.QColor("green"))
+		#stock_b_direction
+		if tradeMessage["dirc_B"] == "buy":
+			itemRow[9].setForeground(QtGui.QColor("red"))
+			itemRow[10].setForeground(QtGui.QColor("red"))
+		else:
+			itemRow[9].setForeground(QtGui.QColor("green"))
+			itemRow[10].setForeground(QtGui.QColor("green"))
 		return itemRow
 

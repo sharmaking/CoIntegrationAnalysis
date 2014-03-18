@@ -175,6 +175,11 @@
           </attribute>
           <column>
            <property name="text">
+            <string>状态</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>股票对</string>
            </property>
           </column>
