@@ -131,7 +131,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>0</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -168,7 +168,7 @@
            <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderVisible">
-           <bool>true</bool>
+           <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderMinimumSectionSize">
            <number>15</number>
@@ -450,66 +450,210 @@
        <attribute name="title">
         <string>持仓盈亏</string>
        </attribute>
-       <widget class="QTableWidget" name="tableWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>481</width>
-          <height>421</height>
-         </rect>
-        </property>
-        <column>
-         <property name="text">
-          <string>开仓时间</string>
-         </property>
-        </column>
-       </widget>
-       <widget class="QGroupBox" name="groupBox">
-        <property name="geometry">
-         <rect>
-          <x>530</x>
-          <y>20</y>
-          <width>291</width>
-          <height>401</height>
-         </rect>
-        </property>
-        <property name="title">
-         <string>GroupBox</string>
-        </property>
-        <widget class="QWidget" name="formLayoutWidget">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>60</y>
-           <width>241</width>
-           <height>291</height>
-          </rect>
-         </property>
-         <layout class="QFormLayout" name="formLayout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_8">
-            <property name="text">
-             <string>操作类型</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="comboBox"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="text">
-             <string>出现信号股票对</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="comboBox_2"/>
-          </item>
-         </layout>
-        </widget>
-       </widget>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QTableWidget" name="positionsPairTableWidget">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="autoScroll">
+           <bool>true</bool>
+          </property>
+          <property name="autoScrollMargin">
+           <number>14</number>
+          </property>
+          <property name="verticalScrollMode">
+           <enum>QAbstractItemView::ScrollPerItem</enum>
+          </property>
+          <property name="horizontalScrollMode">
+           <enum>QAbstractItemView::ScrollPerItem</enum>
+          </property>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>96</number>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>15</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>股票对</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>信号类型</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>时间</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>比例</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>股票_A</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>方向</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>价格</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>数量</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>浮动盈亏</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>股票_B</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>方向</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>价格</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>数量</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>浮动盈亏</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>总盈亏</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="tureTradeTableWidget">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarAsNeeded</enum>
+          </property>
+          <property name="autoScroll">
+           <bool>true</bool>
+          </property>
+          <property name="autoScrollMargin">
+           <number>14</number>
+          </property>
+          <property name="verticalScrollMode">
+           <enum>QAbstractItemView::ScrollPerItem</enum>
+          </property>
+          <property name="horizontalScrollMode">
+           <enum>QAbstractItemView::ScrollPerItem</enum>
+          </property>
+          <attribute name="horizontalHeaderDefaultSectionSize">
+           <number>96</number>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <attribute name="verticalHeaderMinimumSectionSize">
+           <number>15</number>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>股票对</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>信号类型</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>时间</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>比例</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>股票_A</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>方向</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>价格</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>数量/盈亏</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>股票_B</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>方向</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>价格</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>数量/盈亏</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>总盈亏</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

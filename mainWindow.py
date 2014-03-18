@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #mainWindow.py
 from PyQt4 import QtGui, QtCore, uic
-import mlpCanvas
+import mlpCanvas, tradeDialogWindow
 import datetime, sys, time
 
 class QMainWindow(QtGui.QMainWindow):
@@ -13,6 +13,9 @@ class QMainWindow(QtGui.QMainWindow):
 		self.curPairKey = ""
 		self.pairPara = {}			#配对参数
 		self.pairTradeStatus = {}	#配对交易状态
+		#真实交易记录
+		self.tureTradePoint = {}
+		self.positionsPair = {}
 	#初始化窗口布局
 	def initUI(self):
 		uic.loadUi('ui/mainWindows.ui', self)
@@ -22,14 +25,27 @@ class QMainWindow(QtGui.QMainWindow):
 		self.dc = mlpCanvas.MLPDynamicMplCanvas(self)
 		self.verticalLayout.addWidget(self.dc)
 		#设置表格
+		#信号表格
 		self.messageTableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)	#自动设置宽度
 		self.messageTableWidget.horizontalHeader().setStretchLastSection(True)
 		self.messageTableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)	#设置选择行为，以行为单位
-		self.messageTableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)	#设置选择模式，选择单行
 		self.messageTableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)		#禁止编辑
+		#持仓表格
+		self.positionsPairTableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)	#自动设置宽度
+		self.positionsPairTableWidget.horizontalHeader().setStretchLastSection(True)
+		self.positionsPairTableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)	#设置选择行为，以行为单位
+		self.positionsPairTableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)		#禁止编辑
+		#真实交易历史记录
+		self.tureTradeTableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)	#自动设置宽度
+		self.tureTradeTableWidget.horizontalHeader().setStretchLastSection(True)
+		self.tureTradeTableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)	#设置选择行为，以行为单位
+		self.tureTradeTableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)		#禁止编辑
 	#初始化窗口元件事件关联
 	def initEventConnection(self):
+		#切换显示图形
 		self.pairlistWidget.itemDoubleClicked.connect(self.showSelectPairDetail)
+		#打开交易对话框
+		self.messageTableWidget.cellDoubleClicked.connect(self.makeADeal)
 		#self.connect(self.pairlistWidget, QtCore.SIGNAL('itemDoubleClicked()'),
         #    self.showSelectPairDetail)
 	#------------------------------
@@ -144,4 +160,13 @@ class QMainWindow(QtGui.QMainWindow):
 		self.stockBLabel.setText(str(self.pairPara[str(pairKey)]["stock_B"])+":")
 		#切换图形显示
 		pass
+	#显示对话框
+	def makeADeal(self, row, column):
+		pairKey = self.messageTableWidget.item(row, 0).text()
+		tradeType = self.messageTableWidget.item(row, 1).text()
+		dialog = tradeDialogWindow.QTradeDialogWindow(self, pairKey, self.pairPara[str(pairKey)], self.pairTradeStatus[str(pairKey)]["tradPoint"][-1])
+		if dialog.exec_():
+			tradePoint = dialog.getTrueTradePoint()
+			print tradePoint
+		dialog.destroy()
 
