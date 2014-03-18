@@ -3,7 +3,7 @@
 #mainWindow.py
 from PyQt4 import QtGui, QtCore, uic
 import mlpCanvas, tradeDialogWindow
-import datetime, sys, time, copy
+import datetime, sys, os, time, copy
 
 class QMainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -16,6 +16,8 @@ class QMainWindow(QtGui.QMainWindow):
 		#真实交易记录
 		self.tureTradePoint = {}
 		self.positionsPair = {}
+		#缓存初始化
+		self.initCashe()
 	#初始化窗口布局
 	def initUI(self):
 		uic.loadUi('ui/mainWindows.ui', self)
@@ -46,6 +48,42 @@ class QMainWindow(QtGui.QMainWindow):
 		self.pairlistWidget.itemDoubleClicked.connect(self.showSelectPairDetail)
 		#打开交易对话框
 		self.messageTableWidget.cellDoubleClicked.connect(self.makeADeal)
+	#------------------------------
+	#cache 相关函数
+	#------------------------------
+	def initCashe(self):
+		self.cacheFilePath = "log/tureTrade.log"
+		self.loadCache()
+	#读取缓存
+	def loadCache(self):
+		if not os.path.isfile(self.cacheFilePath):
+			self.cacheFile = open(self.cacheFilePath, "w")
+			self.cacheFile.close
+		execfile(self.cacheFilePath)
+		for key, value in self.positionsPair.items():
+			if value:
+				self.recordTrueTradePoint(key, value[-1]["type"], value[-1])
+	#保存缓存
+	def saveCache(self, **objDict):
+		self.cacheFile = open(self.cacheFilePath, "w")
+		content = ""
+		for key, value in objDict.items():
+			_value = self.dislodgeObj(value)
+			content += "self.%s = %s\n" %(key, str(_value))
+		self.cacheFile.write(content)
+		self.cacheFile.close()
+	def dislodgeObj(self, value):
+		newValue = {}
+		for _key, _list in value.items():
+			newList = []
+			for _item in _list:
+				newItem = {}
+				for _para, _value in _item.items():
+					if _para != "gain_A" and _para != "gain_B" and _para != "gain_All" and _para != "cur_pa" and _para != "cur_pb":
+						newItem[_para] = _value
+				newList.append(newItem)
+			newValue[_key] = newList
+		return newValue
 	#------------------------------
 	#后台策略方法
 	#------------------------------
@@ -209,6 +247,8 @@ class QMainWindow(QtGui.QMainWindow):
 			tradePoint = dialog.getTrueTradePoint()
 			self.recordTrueTradePoint(str(pairKey), tradeType, tradePoint)
 			self.messageTableWidget.item(row, 0).setText("Check")
+			#保存交易信息
+			self.saveCache(positionsPair = self.positionsPair)
 		dialog.destroy()
 	#记录真实交易记录
 	def recordTrueTradePoint(self, pairKey, tradeType, tradePoint):
