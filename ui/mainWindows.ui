@@ -61,7 +61,7 @@
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_5">
+       <widget class="QLabel" name="positionslabel">
         <property name="text">
          <string>0</string>
         </property>
@@ -131,7 +131,7 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="tab">
        <attribute name="title">
@@ -168,7 +168,7 @@
            <bool>false</bool>
           </attribute>
           <attribute name="verticalHeaderVisible">
-           <bool>false</bool>
+           <bool>true</bool>
           </attribute>
           <attribute name="verticalHeaderMinimumSectionSize">
            <number>15</number>
@@ -452,6 +452,13 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>当前持仓</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableWidget" name="positionsPairTableWidget">
           <property name="horizontalScrollBarPolicy">
            <enum>Qt::ScrollBarAsNeeded</enum>
@@ -522,6 +529,11 @@
           </column>
           <column>
            <property name="text">
+            <string>最新价</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>浮动盈亏</string>
            </property>
           </column>
@@ -547,6 +559,11 @@
           </column>
           <column>
            <property name="text">
+            <string>最新价</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
             <string>浮动盈亏</string>
            </property>
           </column>
@@ -555,6 +572,13 @@
             <string>总盈亏</string>
            </property>
           </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_7">
+          <property name="text">
+           <string>成交记录</string>
+          </property>
          </widget>
         </item>
         <item>

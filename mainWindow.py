@@ -3,7 +3,7 @@
 #mainWindow.py
 from PyQt4 import QtGui, QtCore, uic
 import mlpCanvas, tradeDialogWindow
-import datetime, sys, time
+import datetime, sys, time, copy
 
 class QMainWindow(QtGui.QMainWindow):
 	def __init__(self):
@@ -46,8 +46,6 @@ class QMainWindow(QtGui.QMainWindow):
 		self.pairlistWidget.itemDoubleClicked.connect(self.showSelectPairDetail)
 		#打开交易对话框
 		self.messageTableWidget.cellDoubleClicked.connect(self.makeADeal)
-		#self.connect(self.pairlistWidget, QtCore.SIGNAL('itemDoubleClicked()'),
-        #    self.showSelectPairDetail)
 	#------------------------------
 	#后台策略方法
 	#------------------------------
@@ -77,6 +75,42 @@ class QMainWindow(QtGui.QMainWindow):
 			self.stockAPriceLabel.setText(str(pa))
 			self.stockBPriceLabel.setText(str(pb))
 			self.valueLabel.setText(str(value))
+		self.updatePositionGain(pairKey, pa, pb)
+	#更新持仓盈亏
+	def updatePositionGain(self, pairKey, pa, pb):
+		if self.positionsPair.has_key(pairKey) and self.positionsPair[pairKey]:
+			openTradePoint = self.positionsPair[pairKey][-1]
+			para = self.pairPara[pairKey]
+
+			ratio_A = (openTradePoint["pa"] - pa - openTradePoint["pa"]*0.0008)*openTradePoint["vol_a"]
+			ratio_B = (pb - openTradePoint["pb"] - openTradePoint["pb"]*0.0008)*openTradePoint["vol_b"]
+			if openTradePoint["direction"] == 1:
+				ratio_A = -1*ratio_A
+				ratio_B = -1*ratio_B
+			if para["beta"] < 0:
+				ratio_B = -1*ratio_B
+			ratio 	= ratio_A + ratio_B
+
+			if ratio_A > 0 :
+				openTradePoint["gain_A"].setForeground(QtGui.QColor("red"))
+			else:
+				openTradePoint["gain_A"].setForeground(QtGui.QColor("green"))
+			if ratio_B > 0 :
+				openTradePoint["gain_B"].setForeground(QtGui.QColor("red"))
+			else:
+				openTradePoint["gain_B"].setForeground(QtGui.QColor("green"))
+			if ratio > 0 :
+				openTradePoint["gain_All"].setForeground(QtGui.QColor("red"))
+			else:
+				openTradePoint["gain_All"].setForeground(QtGui.QColor("green"))
+
+			openTradePoint["cur_pa"].setText(str(pa))
+			openTradePoint["cur_pb"].setText(str(pb))
+
+			openTradePoint["gain_A"].setText(str(ratio_A))
+			openTradePoint["gain_B"].setText(str(ratio_B))
+			openTradePoint["gain_All"].setText(str(ratio))
+		pass
 	#显示开平仓信号
 	def getTradeMessage(self, tradeMessage):
 		self.messageTableWidget.setRowCount(self.messageTableWidget.rowCount() + 1)
@@ -164,9 +198,41 @@ class QMainWindow(QtGui.QMainWindow):
 	def makeADeal(self, row, column):
 		pairKey = self.messageTableWidget.item(row, 0).text()
 		tradeType = self.messageTableWidget.item(row, 1).text()
-		dialog = tradeDialogWindow.QTradeDialogWindow(self, pairKey, self.pairPara[str(pairKey)], self.pairTradeStatus[str(pairKey)]["tradPoint"][-1])
+		dialog = tradeDialogWindow.QTradeDialogWindow(self, str(pairKey), self.pairPara[str(pairKey)], self.pairTradeStatus[str(pairKey)]["tradPoint"][-1])
 		if dialog.exec_():
 			tradePoint = dialog.getTrueTradePoint()
-			print tradePoint
+			self.recordTrueTradePoint(str(pairKey), tradeType, tradePoint)
 		dialog.destroy()
+	#记录真实交易记录
+	def recordTrueTradePoint(self, pairKey, tradeType, tradePoint):
+		tradePoint = copy.copy(tradePoint)
+		#真实交易记录
+		self.tureTradeTableWidget.setRowCount(self.tureTradeTableWidget.rowCount() + 1)
+		itemRow = self.formartTradeMessage(tradePoint, tradeType)
+		if not self.tureTradePoint.has_key(pairKey):
+			self.tureTradePoint[pairKey] = []
+		self.tureTradePoint[pairKey].append(tradePoint)
+		for i in xrange(len(itemRow)):
+			self.tureTradeTableWidget.setItem(self.tureTradeTableWidget.rowCount()-1,i,itemRow[i])
+		#持仓记录
+		if tradeType == "open":
+			self.positionsPairTableWidget.setRowCount(self.positionsPairTableWidget.rowCount() + 1)
+			itemRow = self.formartTradeMessage(tradePoint, tradeType)
+			tradePoint["gain_A"] = QtGui.QTableWidgetItem(str(0))
+			tradePoint["gain_B"] = QtGui.QTableWidgetItem(str(1))
+			tradePoint["gain_All"] = QtGui.QTableWidgetItem(str(2))
+			itemRow.insert(8, tradePoint["gain_A"])
+			itemRow.insert(13, tradePoint["gain_B"])
+			itemRow.insert(14, tradePoint["gain_All"])
+			tradePoint["cur_pa"] = QtGui.QTableWidgetItem(str(tradePoint["pa"]))
+			tradePoint["cur_pb"] = QtGui.QTableWidgetItem(str(tradePoint["pb"]))
+			itemRow.insert(8, tradePoint["cur_pa"])
+			itemRow.insert(14, tradePoint["cur_pb"])
+			for i in xrange(len(itemRow)):
+				self.positionsPairTableWidget.setItem(self.positionsPairTableWidget.rowCount()-1,i,itemRow[i])
+			if not self.positionsPair.has_key(pairKey):
+				self.positionsPair[pairKey] = []
+			self.positionsPair[pairKey].append(tradePoint)
+			#更新持仓数目
+			self.positionslabel.setText(str(int(self.positionslabel.text())+1))
 

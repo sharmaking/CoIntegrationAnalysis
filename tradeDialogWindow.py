@@ -58,11 +58,9 @@ class QTradeDialogWindow(QtGui.QDialog):
 	#得到真实交易点
 	def getTrueTradePoint(self):
 		tradePoint = copy.copy(self.tradePoint)
-		tradePoint["dateTime"] = self.dealTime_dateTimeEdit.dateTime()
+		tradePoint["dateTime"] = self.dealTime_dateTimeEdit.dateTime().toPyDateTime()
 		tradePoint["pa"] = self.stock_A_Price_doubleSpinBox.value()
 		tradePoint["vol_a"] = self.stock_A_Vol_spinBox.value()
-
 		tradePoint["pb"] = self.stock_B_Price_doubleSpinBox.value()
 		tradePoint["vol_b"] = self.stock_B_Vol_spinBox.value()
 		return tradePoint
-		pass
