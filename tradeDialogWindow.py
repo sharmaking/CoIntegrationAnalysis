@@ -81,10 +81,17 @@ class QTradeDialogWindow(QtGui.QDialog):
 		self.stock_B_Price_doubleSpinBox.setSingleStep(0.01)
 		self.stock_B_Vol_spinBox.setSingleStep(100)
 		self.stock_B_Vol_spinBox.setRange(100,1000)
-		#
+		#获得量
 		if self.tradePoint["type"] == "open":
 			self.stock_A_Vol_spinBox.setValue(self.tradePoint["vol_a"])
 			self.stock_B_Vol_spinBox.setValue(self.tradePoint["vol_b"])
+		else:
+			try:
+				openPoint = self.QMain.positionsPair[self.pairKey][-1]
+				self.stock_A_Vol_spinBox.setValue(openPoint["vol_a"])
+				self.stock_B_Vol_spinBox.setValue(openPoint["vol_b"])
+			except Exception:
+				pass			
 		#计算配对系数
 		self.getPairValue(0)
 		#设置阈值

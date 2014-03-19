@@ -48,6 +48,10 @@ class QMainWindow(QtGui.QMainWindow):
 		self.pairlistWidget.itemDoubleClicked.connect(self.showSelectPairDetail)
 		#打开交易对话框
 		self.messageTableWidget.cellDoubleClicked.connect(self.makeADeal)
+		#排序事件
+		self.messageTableWidget.horizontalHeader().sectionClicked.connect(self.messageTableWidget.sortItems)
+		self.positionsPairTableWidget.horizontalHeader().sectionClicked.connect(self.positionsPairTableWidget.sortItems)
+		self.tureTradeTableWidget.horizontalHeader().sectionClicked.connect(self.tureTradeTableWidget.sortItems)
 	#------------------------------
 	#cache 相关函数
 	#------------------------------
@@ -254,7 +258,9 @@ class QMainWindow(QtGui.QMainWindow):
 			self.recordTrueTradePoint(str(pairKey), tradeType, tradePoint)
 			self.messageTableWidget.item(row, 0).setText("Check")
 			#保存交易信息
-			self.saveCache(positionsPair = self.positionsPair)
+			self.saveCache(
+				positionsPair = self.positionsPair,
+				tureTradePoint = self.tureTradePoint)
 		dialog.destroy()
 	#记录真实交易记录
 	def recordTrueTradePoint(self, pairKey, tradeType, tradePoint):
@@ -294,6 +300,7 @@ class QMainWindow(QtGui.QMainWindow):
 			row = self.positionsPairTableWidget.row(item[0])
 			self.positionsPairTableWidget.removeRow(row)
 			self.positionslabel.setText(str(int(self.positionslabel.text())-1))
+
 	#格式化真实交易点
 	def formartTrueTradeMessage(self, tradeMessage, tradeType):
 		itemRow = [
@@ -326,5 +333,12 @@ class QMainWindow(QtGui.QMainWindow):
 		else:
 			itemRow[9].setForeground(QtGui.QColor("green"))
 			itemRow[10].setForeground(QtGui.QColor("green"))
+		#
+		if tradeType == "close":
+			for item in itemRow:
+				item.setBackground(QtGui.QColor(252,221,222,100))
+		elif tradeType == "stop":
+			for item in itemRow:
+				item.setBackground(QtGui.QColor(226,244,235,100))
 		return itemRow
 
