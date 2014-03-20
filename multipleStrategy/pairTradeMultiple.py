@@ -49,17 +49,23 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"open"	: float(line[4]),	
 					"close" : float(line[5]),
 					"stop"	: float(line[6])}
-				self.pairTradeStatus[line[0]] = {}
+				self.pairTradeStatus[line[0]] = {
+					"direction" : 0,	# 0 未开仓, 1 正方向, 2 负方向, -1 不要做了
+					"tradPoint" : []
+				}
 		self.sendMessage((0, self.pairDict))
 	def loadTrueTrade(self):
 		execfile(".\\log\\tureTrade.log")
 		for key, value in self.pairTradeStatus.items():
-			if value["direction"] != -1:
-				try:
-					value["direction"] = self.positionsPair[key][-1]["direction"]
-					value["tradPoint"].append(self.positionsPair[key][-1])
-				except Exception:
-					value["direction"] = 0
+			try:
+				if value["direction"] != -1:			
+					try:
+						value["direction"] = self.positionsPair[key][-1]["direction"]
+						value["tradPoint"].append(self.positionsPair[key][-1])
+					except Exception:
+						value["direction"] = 0
+			except Exception:
+				pass				
 	#获得股票价格
 	def getStockCurPrice(self, stockCode):
 		if self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList:
@@ -94,9 +100,6 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 		return S
 	#计算开平仓信号
 	def getTradeMessage(self, pairKey, data, value, para, status):
-		if not status.has_key("tradPoint"):
-			status["tradPoint"] = []
-			status["direction"]	= 0 	# 0 未开仓, 1 正方向, 2 负方向, -1 不要做了
 		if not status["direction"]:
 			if value > para["open"]:	#正方向
 				status["preOpenTime"] = copy.copy(data["dateTime"])
@@ -128,7 +131,7 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"stock_B"	: pairKey[7:15],
 					"beta"		: para["beta"],
 					"dateTime"	: data["dateTime"],
-					"direction"	: 1,
+					"direction"	: 2,
 					"dirc_A"	: "buy",
 					"dirc_B"	: "sell",
 					"pa"		: status["pa"],
@@ -235,7 +238,7 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 				self.sendMessage((3, status["tradPoint"][-1]))
 				status["direction"] = -1
 		pass
-
+	#创建交易日志
 	def creatTradingLog(self, closeTrade, openTrade):
 		if closeTrade["beta"] < 0:
 			openTrade["dirc_B"]	= openTrade["dirc_A"]
