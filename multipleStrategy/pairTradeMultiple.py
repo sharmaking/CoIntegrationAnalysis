@@ -164,6 +164,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"ratio_B"	: ratio_B,
 					"ratio"		: ratio
 					})
+				if para["beta"] < 0:
+					status["tradPoint"][-1]["dirc_B"]	= status["tradPoint"][-1]["dirc_A"]
 				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
 				self.sendMessage((3, status["tradPoint"][-1]))
 				status["direction"] = 0
@@ -187,6 +189,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"ratio_B"	: ratio_B,
 					"ratio"		: ratio
 					})
+				if para["beta"] < 0:
+					status["tradPoint"][-1]["dirc_B"]	= status["tradPoint"][-1]["dirc_A"]
 				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
 				self.sendMessage((3, status["tradPoint"][-1]))
 				status["direction"] = -1
@@ -211,6 +215,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"ratio_B"	: ratio_B,
 					"ratio"		: ratio
 					})
+				if para["beta"] < 0:
+					status["tradPoint"][-1]["dirc_B"]	= status["tradPoint"][-1]["dirc_A"]
 				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
 				self.sendMessage((3, status["tradPoint"][-1]))
 				status["direction"] = 0
@@ -234,6 +240,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"ratio_B"	: ratio_B,
 					"ratio"		: ratio
 					})
+				if para["beta"] < 0:
+					status["tradPoint"][-1]["dirc_B"]	= status["tradPoint"][-1]["dirc_A"]
 				self.creatTradingLog(status["tradPoint"][-1], status["tradPoint"][-2])
 				self.sendMessage((3, status["tradPoint"][-1]))
 				status["direction"] = -1
