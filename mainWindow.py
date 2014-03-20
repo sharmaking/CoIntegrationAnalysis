@@ -312,6 +312,8 @@ class QMainWindow(QtGui.QMainWindow):
 			_gain_All_raito = _gain_All/(_openPrice_A*_openVol_A + _openPrice_B*_openVol_B)
 			self.tureTradeTableWidget.setItem(self.tureTradeTableWidget.rowCount()-1,12,QtGui.QTableWidgetItem(str(_gain_All)))
 			self.tureTradeTableWidget.setItem(self.tureTradeTableWidget.rowCount()-1,13,QtGui.QTableWidgetItem(str(_gain_All_raito)))
+			tradePoint["earnings_All"] = _gain_All
+			tradePoint["earnings_All_raito"] = _gain_All_raito
 			#清除持仓列表
 			self.positionsPair[pairKey] = []
 			row = self.positionsPairTableWidget.row(item[0])
