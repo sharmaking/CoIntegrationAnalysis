@@ -305,8 +305,15 @@ class QMainWindow(QtGui.QMainWindow):
 			#更新持仓数目
 			self.positionslabel.setText(str(int(self.positionslabel.text())+1))
 		else:
-			self.positionsPair[pairKey] = []
 			item = self.positionsPairTableWidget.findItems(QtCore.QString(pairKey), QtCore.Qt.MatchFlags(0))
+			#显示平仓盈亏
+			_openPrice_A, _openVol_A, _openPrice_B, _openVol_B = float(item[6].text()), float(item[7].text()), float(item[12].text()), float(item[13].text())
+			_gain_All = float(item[17].text())
+			_gain_All_raito = _gain_All/(_openPrice_A*_openVol_A + _openPrice_B*_openVol_B)
+			self.tureTradeTableWidget.setItem(self.tureTradeTableWidget.rowCount()-1,12,QtGui.QTableWidgetItem(str(_gain_All)))
+			self.tureTradeTableWidget.setItem(self.tureTradeTableWidget.rowCount()-1,13,QtGui.QTableWidgetItem(str(_gain_All_raito)))
+			#清除持仓列表
+			self.positionsPair[pairKey] = []
 			row = self.positionsPairTableWidget.row(item[0])
 			self.positionsPairTableWidget.removeRow(row)
 			self.positionslabel.setText(str(int(self.positionslabel.text())-1))
