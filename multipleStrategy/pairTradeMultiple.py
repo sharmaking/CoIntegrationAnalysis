@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #pairTradeMultiple.py
 import baseMultiple
-import csv, copy, numpy as np
+import csv, copy, datetime, numpy as np
 
 class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 	#------------------------------
@@ -16,8 +16,12 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 		self.pairDict = {}
 		self.pairTradeStatus = {}
 		self.loadPairPara()
+		self.isFirstData = True
 	#行情数据触发函数
 	def onRtnMarketData(self, data):
+		if self.isFirstData:
+			self.firstDataTrigger(data)
+			self.isFirstData = False
 		self.sendMessage((1, data["dateTime"]))
 		self.strategyEntrance(data)
 	def dayEnd(self):
@@ -26,7 +30,8 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 	def autosaveCache(self):
 		self.saveCache(pairDict = self.pairDict,
 			pairTradeStatus = self.pairTradeStatus)
-		pass
+	def firstDataTrigger(self, data):
+		self.loadTrueTrade()
 	#------------------------------
 	#执行策略方法
 	#------------------------------
@@ -46,6 +51,15 @@ class CPairTradeMultiple(baseMultiple.CBaseMultiple):
 					"stop"	: float(line[6])}
 				self.pairTradeStatus[line[0]] = {}
 		self.sendMessage((0, self.pairDict))
+	def loadTrueTrade(self):
+		execfile(".\\log\\tureTrade.log")
+		for key, value in self.pairTradeStatus.items():
+			if value["direction"] != -1:
+				try:
+					value["direction"] = self.positionsPair[key][-1]["direction"]
+					value["tradPoint"].append(self.positionsPair[key][-1])
+				except Exception:
+					value["direction"] = 0
 	#获得股票价格
 	def getStockCurPrice(self, stockCode):
 		if self.actuatorDict[stockCode].signalObjDict["baseSignal"].MDList:

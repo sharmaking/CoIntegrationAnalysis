@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #mainWindow.py
 from PyQt4 import QtGui, QtCore, uic
-import mlpCanvas, tradeDialogWindow
+import tradeDialogWindow, pairDetailDialogWindow
 import datetime, sys, os, time, copy
 
 class QMainWindow(QtGui.QMainWindow):
@@ -23,9 +23,6 @@ class QMainWindow(QtGui.QMainWindow):
 		uic.loadUi('ui/mainWindows.ui', self)
 		self.setWindowTitle(u'统计套利信号客户端')
 		self.statusBar().showMessage(u'已连接服务器')
-		#设置画布
-		self.dc = mlpCanvas.MLPDynamicMplCanvas(self)
-		self.verticalLayout.addWidget(self.dc)
 		#设置表格
 		#信号表格
 		self.messageTableWidget.horizontalHeader().setResizeMode(QtGui.QHeaderView.ResizeToContents)	#自动设置宽度
@@ -42,16 +39,22 @@ class QMainWindow(QtGui.QMainWindow):
 		self.tureTradeTableWidget.horizontalHeader().setStretchLastSection(True)
 		self.tureTradeTableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)	#设置选择行为，以行为单位
 		self.tureTradeTableWidget.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)		#禁止编辑
+		# 创建QMenu
+		self.messageTableContextMenu = QtGui.QMenu(self)
+		self.showDetailDialogAction = self.messageTableContextMenu.addAction(u'显示详情')
 	#初始化窗口元件事件关联
 	def initEventConnection(self):
-		#切换显示图形
-		self.pairlistWidget.itemDoubleClicked.connect(self.showSelectPairDetail)
 		#打开交易对话框
 		self.messageTableWidget.cellDoubleClicked.connect(self.makeADeal)
 		#排序事件
 		self.messageTableWidget.horizontalHeader().sectionClicked.connect(self.messageTableWidget.sortItems)
 		self.positionsPairTableWidget.horizontalHeader().sectionClicked.connect(self.positionsPairTableWidget.sortItems)
 		self.tureTradeTableWidget.horizontalHeader().sectionClicked.connect(self.tureTradeTableWidget.sortItems)
+		#弹出右键菜单事件
+		self.messageTableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+		self.messageTableWidget.customContextMenuRequested.connect(self.showContextMenu)
+		#右键菜单事件
+		self.showDetailDialogAction.triggered.connect(self.showDetailDialog)
 	#------------------------------
 	#cache 相关函数
 	#------------------------------
@@ -76,6 +79,7 @@ class QMainWindow(QtGui.QMainWindow):
 			content += "self.%s = %s\n" %(key, str(_value))
 		self.cacheFile.write(content)
 		self.cacheFile.close()
+	#格式化保存数据
 	def dislodgeObj(self, value):
 		newValue = {}
 		for _key, _list in value.items():
@@ -93,19 +97,17 @@ class QMainWindow(QtGui.QMainWindow):
 	#------------------------------
 	#显示行情时间
 	def showMarketTime(self, marketTime):
-		self.marketTime_LCD.display(marketTime)
+		self.marketTimeLabel.setText(marketTime)
 	#显示本地时间
 	def showLocalTime(self, localTime):
-		self.localTime_LCD.display(localTime)
+		self.localTimeLabel.setText(localTime)
 	#获取参数表
 	def getPairPara(self, pairPara):
 		self.pairPara = pairPara
 		for key, para in sorted(self.pairPara.items(), key=lambda d:d[0]):
-			self.pairlistWidget.addItem(key)
+			#self.pairlistWidget.addItem(key)
 			self.pairTradeStatus[key] = {"datas":[], "tradPoint":[]}
 		self.pairNumLabel.setText(str(len(self.pairPara)))
-		time.sleep(1)
-		self.setCurrentPair(self.pairPara.items()[0][0])
 	#获得配对参数
 	def getPairValue(self, pairValue):
 		pairKey, valuetime, pa, pb, value, volList_A, volList_B = pairValue
@@ -124,7 +126,7 @@ class QMainWindow(QtGui.QMainWindow):
 		self.updatePositionGain(pairKey, pa, pb)
 	#更新持仓盈亏
 	def updatePositionGain(self, pairKey, pa, pb):
-		if self.positionsPair.has_key(pairKey) and self.positionsPair[pairKey]:
+		if self.tabWidget.currentIndex() == 1 and self.positionsPair.has_key(pairKey) and self.positionsPair[pairKey]:
 			openTradePoint = self.positionsPair[pairKey][-1]
 			para = self.pairPara[pairKey]
 
@@ -165,7 +167,8 @@ class QMainWindow(QtGui.QMainWindow):
 		if tradeMessage["type"] == "open":
 			itemRow = self.formartTradeMessage(tradeMessage, "open")
 			if self.positionsPair.has_key(tradeMessage["pairKey"]) and self.positionsPair[tradeMessage["pairKey"]]:
-				itemRow[0].setText("Check")
+				if self.positionsPair[tradeMessage["pairKey"]][-1]["direction"] == tradeMessage["direction"]:
+					itemRow[0].setText("Check")
 			for i in xrange(len(itemRow)):
 				self.messageTableWidget.setItem(self.messageTableWidget.rowCount()-1,i,itemRow[i])
 		elif tradeMessage["type"] == "close":
@@ -181,6 +184,7 @@ class QMainWindow(QtGui.QMainWindow):
 			for i in xrange(len(itemRow)):
 				self.messageTableWidget.setItem(self.messageTableWidget.rowCount()-1,i,itemRow[i])
 		pass
+	#格式化交易信号
 	def formartTradeMessage(self, tradeMessage, tradeType):
 		itemRow = [
 			QtGui.QTableWidgetItem(str(tradeMessage["pairKey"])),
@@ -234,20 +238,16 @@ class QMainWindow(QtGui.QMainWindow):
 	#------------------------------
 	#界面操控方法
 	#------------------------------
-	#显示选定配对参数
-	def showSelectPairDetail(self, pairItem):
-		pairKey = pairItem.text()
-		self.setCurrentPair(pairKey)
-	def setCurrentPair(self, pairKey):
-		self.curPairKey = pairKey
-		#显示参数
-		self.openLabel.setText(str(self.pairPara[str(pairKey)]["open"]))
-		self.closeLabel.setText(str(self.pairPara[str(pairKey)]["close"]))
-		self.stopLabel.setText(str(self.pairPara[str(pairKey)]["stop"]))
-		self.stockALabel.setText(str(self.pairPara[str(pairKey)]["stock_A"])+":")
-		self.stockBLabel.setText(str(self.pairPara[str(pairKey)]["stock_B"])+":")
-		#切换图形显示
-		pass
+	#显示右键菜单
+	def showContextMenu(self):
+		if self.messageTableContextMenu.exec_(QtGui.QCursor().pos()):
+			pass
+	#显示配对详情
+	def showDetailDialog(self):
+		pairDetailDialog = pairDetailDialogWindow.QPairDetailDialogWindow(self)
+		if pairDetailDialog.exec_():
+			pass
+		pairDetailDialog.destroy()
 	#显示对话框
 	def makeADeal(self, row, column):
 		pairKey = self.messageTableWidget.item(row, 1).text()
@@ -270,6 +270,11 @@ class QMainWindow(QtGui.QMainWindow):
 		itemRow = self.formartTrueTradeMessage(tradePoint, tradeType)
 		if not self.tureTradePoint.has_key(pairKey):
 			self.tureTradePoint[pairKey] = []
+		try:
+			while self.tureTradePoint[pairKey][-1]["direction"] == tradePoint["direction"]:
+				del self.tureTradePoint[pairKey][-1]
+		except Exception:
+			pass		
 		self.tureTradePoint[pairKey].append(tradePoint)
 		for i in xrange(len(itemRow)):
 			self.tureTradeTableWidget.setItem(self.tureTradeTableWidget.rowCount()-1,i,itemRow[i])
@@ -291,6 +296,11 @@ class QMainWindow(QtGui.QMainWindow):
 				self.positionsPairTableWidget.setItem(self.positionsPairTableWidget.rowCount()-1,i,itemRow[i])
 			if not self.positionsPair.has_key(pairKey):
 				self.positionsPair[pairKey] = []
+			try:
+				while self.positionsPair[pairKey][-1]["direction"] == tradePoint["direction"]:
+					del self.positionsPair[pairKey][-1]
+			except Exception:
+				pass		
 			self.positionsPair[pairKey].append(tradePoint)
 			#更新持仓数目
 			self.positionslabel.setText(str(int(self.positionslabel.text())+1))
@@ -300,7 +310,6 @@ class QMainWindow(QtGui.QMainWindow):
 			row = self.positionsPairTableWidget.row(item[0])
 			self.positionsPairTableWidget.removeRow(row)
 			self.positionslabel.setText(str(int(self.positionslabel.text())-1))
-
 	#格式化真实交易点
 	def formartTrueTradeMessage(self, tradeMessage, tradeType):
 		itemRow = [
@@ -341,4 +350,5 @@ class QMainWindow(QtGui.QMainWindow):
 			for item in itemRow:
 				item.setBackground(QtGui.QColor(226,244,235,100))
 		return itemRow
+
 
